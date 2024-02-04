@@ -18,9 +18,9 @@ export default class MyGame extends Phaser.Scene {
 
   preload() {
     // Game background
-    this.load.image("bg", "/assets/background.png");
+    this.load.image("bg", "/assets/room.png");
     // Basket image
-    this.load.image("basket", "/assets/bunny1.svg");
+    this.load.image("basket", "/assets/basket.png");
     // Items
     this.load.image("item1", "/assets/bunny1.svg");
     // Alexa 
@@ -28,14 +28,30 @@ export default class MyGame extends Phaser.Scene {
       frameWidth: 290, 
       frameHeight: 531,
     });
+
+    this.load.spritesheet('bed', '/assets/bed.png', {
+      frameWidth: 520, 
+      frameHeight: 408,
+    });
   }
 
   create() {
     //--------------------------------------BACKGROUND--------------------------------------//
-    this.add.image(0, 0, "bg").setOrigin(0, 0).setScale(2);
+    this.add.image(-10, -100, "bg").setOrigin(0, 0).setScale(.6);
+    //Bed
+    this.bedSprite = this.add.sprite(50, sizes.height - 253, 'bed').setOrigin(0, 0).setScale(.5);
+    this.bedSprite.anims.create({
+      key: 'b_playIdle',
+      frames: this.anims.generateFrameNumbers('bed', { start: 0, end: 2 }),
+      frameRate: 3,
+      repeat: -1
+    });
+
+    this.bedSprite.play('b_playIdle');
+
 
     //--------------------------------------BASKET--------------------------------------//
-    const basket = this.add.image(sizes.width - 100, 500, "basket").setInteractive();
+    const basket = this.add.image(sizes.width - 150, 500, "basket").setInteractive().setScale(.4);
     this.input.setDraggable(basket);
 
     //--------------------------------------ITEMS--------------------------------------//
@@ -43,15 +59,15 @@ export default class MyGame extends Phaser.Scene {
 
       this.itemsGroup = this.add.group({
       key: 'item1',
-      repeat: 3,
-      setXY: { x: 200, y: sizes.height - 100, stepX: 100 }
+      repeat: 0,
+      setXY: { x: 400, y: sizes.height - 100, stepX: 100 }
     });
 
     
     // Make items draggable
     this.itemsGroup.children.iterate(item => {
       item.setInteractive();
-      item.setScale(.5);
+      item.setScale(.3);
       this.input.setDraggable(item);
       this.physics.world.enable(item);
     item.body.allowGravity = false;
@@ -61,7 +77,7 @@ export default class MyGame extends Phaser.Scene {
     //--------------------------------------CHARACTERS--------------------------------------//
 
     //ALEXA
-    this.alexaSprite = this.physics.add.sprite(0, 0, 'alexa').setOrigin(0, 0).setScale(.5);
+    this.alexaSprite = this.physics.add.sprite(50, sizes.height - 531, 'alexa').setOrigin(0, 0).setScale(.4);
     this.alexaSprite.body.allowGravity = false;
 
     //Animation
@@ -112,7 +128,7 @@ export default class MyGame extends Phaser.Scene {
     });
 
     //DIALOGUE
-    this.dialogueText = this.add.text(sizes.width / 2, sizes.height / 2, '', {
+    this.dialogueText = this.add.text(sizes.width / 2, 150, '', {
       fontSize: '24px',
       fill: '#fff',
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
