@@ -16,13 +16,13 @@ export default class MyMenu extends Phaser.Scene {
 
         const lofiSound = this.sound.add('lofi', { volume: 0.1, loop: true });
 
-  // Play the lofi sound
-  lofiSound.play();
+        // Play the lofi sound
+        lofiSound.play();
         // Play the GIF as an animation
         myTitle.anims.create({
             key: 'playTitle',
-            frames: this.anims.generateFrameNumbers('titleKey', { start: 0, end: 11 }),
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('titleKey', { start: 0, end: 29 }),
+            frameRate: 13,
             repeat: -1 // Set to -1 to loop indefinitely
         });
 
