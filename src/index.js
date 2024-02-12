@@ -13,7 +13,7 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y: 300 },
-      debug: false // Set to true for debugging physics
+      debug: true // Set to true for debugging physics
     }
   },
 };
