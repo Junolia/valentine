@@ -232,7 +232,7 @@ export default class MyGame extends Phaser.Scene {
      this.physics.add.existing(this.invisibleRect,true);
      
 
-     this.smallRect = this.add.rectangle(643, 0, 300, 640, 0x000000);
+     this.smallRect = this.add.rectangle(650, 0, 300, 640, 0x000000);
      this.smallRect.setAlpha(0); // Set alpha to 0 to make it invisible
      
      // Enable physics on the rectangle
