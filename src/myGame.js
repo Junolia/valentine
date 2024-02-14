@@ -16,7 +16,7 @@ export default class MyGame extends Phaser.Scene {
     this.itemsGroup;
     this.ping;
     this.collectedItemsCount = 0;
-    this.totalItemsCount = 6;
+    this.totalItemsCount = 7;
   }
 
   preload() {
@@ -324,7 +324,10 @@ export default class MyGame extends Phaser.Scene {
   this.cursor = this.input.keyboard.createCursorKeys();
 
     //--------------------------------------GAME LOGIC--------------------------------------//
-    
+    this.collectedItemsText = this.add.text(480, 650, 'Items Collected: 0/' + this.totalItemsCount, {
+      fontSize: '16px',
+      fill: '#ce4e75'
+  }).setDepth(1).setOrigin(1, 0);
 
     this.alexaSprite.body.setCollideWorldBounds(true);
 
@@ -350,7 +353,7 @@ export default class MyGame extends Phaser.Scene {
         soul = 1;
       }
 
-      if(gameObject.texture.key === 'paddle' && soul == 0){
+      if(gameObject.texture.key === 'paddle' && paddle == 0){
         this.physics.world.enable(this.collectableItems[4]);
         this.collectableItems[4].setVisible(true);
         paddle = 1;
@@ -377,13 +380,15 @@ export default class MyGame extends Phaser.Scene {
     this.bedSprite.setInteractive();
     this.bedSprite.on('pointerdown', this.handleBedClick, this);
 
-    this.dialogueText.setText('Can you help me collect the \nitems for Valentine\'s day before my boyfriend \nwakes up?\n*HINT* You can drag furnature to find hidden gifts'); 
+    this.dialogueText.setText('Can you help me collect the \nitems for Valentine\'s day before my boyfriend \nwakes up?\n*HINT* You can drag furnature to find hidden gifts,\nuse arrow keys to move.'); 
 
     
   }
 
 
   update() {
+
+    this.collectedItemsText.setText('Items Collected: ' + this.collectedItemsCount + '/' + this.totalItemsCount);
 
     // Update Alexa's movement in the update loop
     const speed = 350;
@@ -471,8 +476,9 @@ export default class MyGame extends Phaser.Scene {
   }
 
   endNow(){
-    this.time.delayedCall(5000, () => {
+    this.time.delayedCall(4000, () => {
       this.scene.start("MyEndKey");
+      this.collectedItemsCount = 0;
   }, [], this);
 
   }
