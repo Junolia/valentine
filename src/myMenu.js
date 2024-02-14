@@ -8,7 +8,7 @@ export default class MyMenu extends Phaser.Scene {
             frameHeight: 672,
           });
 
-        this.load.audio("lofi", ["/assets/music.mp3"]);
+        this.load.audio("lofi", ["/assets/music.wav"]);
     }
 
     create(){
