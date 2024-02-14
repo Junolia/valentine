@@ -15,6 +15,8 @@ export default class MyGame extends Phaser.Scene {
     this.playerSpeed = speedDown + 50;
     this.itemsGroup;
     this.ping;
+    this.collectedItemsCount = 0;
+    this.totalItemsCount = 6;
   }
 
   preload() {
@@ -33,6 +35,10 @@ export default class MyGame extends Phaser.Scene {
     this.load.image("chair", "/assets/chair.png");
     // Pillow
     this.load.image("pillow", "/assets/pillow.png");
+    // Box
+    this.load.image("box", "/assets/box.png");
+    // Drawer
+    this.load.image("drawer", "/assets/drawer.png");
     // Basket image
     this.load.image("basket", "/assets/basket.png");
     // Items
@@ -93,7 +99,9 @@ export default class MyGame extends Phaser.Scene {
     // Room
     this.add.image(-10, -100, "bg").setOrigin(0, 0).setScale(.6);
     // Bed
-    this.bedSprite = this.add.sprite(50, sizes.height - 270, 'bed').setOrigin(0, 0).setScale(.5).setDepth(5);
+    this.bedSprite = this.physics.add.sprite(50, sizes.height - 270, 'bed').setOrigin(0, 0).setScale(.5).setDepth(5);
+    this.bedSprite.setImmovable(true);
+    this.bedSprite.body.allowGravity = false;
     this.bedSprite.anims.create({
       key: 'b_playIdle',
       frames: this.anims.generateFrameNumbers('bed', { start: 0, end: 2 }),
@@ -117,15 +125,25 @@ export default class MyGame extends Phaser.Scene {
     this.pillow.setInteractive();
     this.input.setDraggable(this.pillow);
 
+    // Paddle
+    this.paddle = this.physics.add.image(220, 130, 'paddle').setOrigin(0, 0).setDepth(3).setScale(.6); 
+    this.paddle.body.allowGravity = false;
+    this.paddle.setInteractive();
+    this.input.setDraggable(this.paddle);
+
     // Chair
     this.add.image(25, 310, 'chair').setOrigin(0,0);
+
+    //Stationary box
+    this.add.image(150, 540, 'box').setOrigin(0, 0).setScale(.6).setDepth(6);
 
     //**DRAGGABLE**/
 
     this.movableObjects = [];
 
     this.movableObjects.push(this.physics.add.image(450, 240, 'trash').setOrigin(0, 0).setScale(.4));
-    this.movableObjects.push(this.physics.add.image(220, 130, 'paddle').setOrigin(0, 0).setScale(.6));
+    this.movableObjects.push(this.physics.add.image(220, 540, 'box').setOrigin(0, 0).setScale(.6));
+    this.movableObjects.push(this.physics.add.image(600, 460, 'drawer').setOrigin(0, 0).setScale(1));
 
     this.movableObjects.forEach(item => {
       item.setImmovable(true); // Prevents item from being moved by collisions
@@ -138,6 +156,13 @@ export default class MyGame extends Phaser.Scene {
       item.body.setCollideWorldBounds(true);
 
   });
+
+  // set trash depth
+  this.movableObjects[0].setDepth(5)
+  // Set box depth
+  this.movableObjects[1].setDepth(6);
+  //Set drawer depth 
+  this.movableObjects[2].setDepth(5)
    
     // Desk 
     this.desk = this.physics.add.image(200, 100, "desk").setOrigin(0, 0).setScale(.7);
@@ -146,8 +171,8 @@ export default class MyGame extends Phaser.Scene {
     this.desk.body.allowGravity = false;
 
     //--------------------------------------BASKET--------------------------------------//
-    const basket = this.add.image(sizes.width - 150, 500, "basket").setInteractive().setScale(.4);
-    this.input.setDraggable(basket);
+    //const basket = this.add.image(sizes.width - 300, 500, "basket").setInteractive().setScale(.4);
+    //this.input.setDraggable(basket);
 
     //--------------------------------------ITEMS--------------------------------------//
 
@@ -157,22 +182,22 @@ export default class MyGame extends Phaser.Scene {
         this.collectableItems = [];
         this.itemDescriptions = [];
 
-        this.itemDescriptions.push('A candy that my boyfriend used to eat all the time.\n He does have good taste.')
-        this.itemDescriptions.push('He\'s a huge terraria ner--I mean fan,\n I hope this little critter won\'t scare his roomate!');
-        this.itemDescriptions.push('Also known as "dinner". Maybe I shouldn\'t\n be feeding into his bad eating habits...');
-        this.itemDescriptions.push('Oh this? Definately not going in the basket.');
-        this.itemDescriptions.push('You found the one peice?! Oh...it\'s\n just stickers. It\'ll have to do.');
-        this.itemDescriptions.push('Reminiscent of our first picnic at my\n house, something sweet for someone sweet. ');
-        this.itemDescriptions.push('This would do nicely!');
+        this.itemDescriptions.push('[Sour Patch]\nA candy that my boyfriend used to eat all the time.\nHe does have good taste.')
+        this.itemDescriptions.push('[Eater of Souls]\nHe\'s a huge terraria ner--I mean fan.\nCreeepy');
+        this.itemDescriptions.push('[Skinny Pop]\nAlso known as "dinner". Maybe I shouldn\'t\nbe feeding into his bad eating habits...');
+        this.itemDescriptions.push('[Kombucha]\nOh this? Definately not going in the basket.');
+        this.itemDescriptions.push('[Stickers]\nYou found the one peice?! Oh...it\'s\njust stickers. It\'ll have to do.');
+        this.itemDescriptions.push('[Chocolates]\nReminiscent of our first picnic at my\nhouse, something sweet for someone sweet. ');
+        this.itemDescriptions.push('[Airheads]\nThis would do nicely!');
 
         // Add each collectable item to the array and set them up individually
-        this.collectableItems.push(this.add.sprite(300, sizes.height - 350, 'sour').setOrigin(0, 0).setScale(.3));
+        this.collectableItems.push(this.add.sprite(630, 500, 'sour').setOrigin(0, 0).setScale(.3));
         this.collectableItems.push(this.add.sprite(400, 350, 'soul').setOrigin(0, 0).setScale(.5));
-        this.collectableItems.push(this.add.sprite(400, sizes.height - 350, 'skinny').setOrigin(0, 0).setScale(.4));
+        this.collectableItems.push(this.add.sprite(630, 410, 'skinny').setOrigin(0, 0).setScale(.4));
         this.collectableItems.push(this.add.sprite(455, 240, 'kombucha').setOrigin(0, 0).setScale(.3));
-        this.collectableItems.push(this.add.sprite(225,180, 'onepc').setOrigin(0, 0).setScale(.3));
+        this.collectableItems.push(this.add.sprite(225,260, 'onepc').setOrigin(0, 0).setScale(.3));
         this.collectableItems.push(this.add.sprite(95, 355, 'lindor').setOrigin(0, 0).setScale(.4));
-        this.collectableItems.push(this.add.sprite(500, sizes.height - 350, 'airh').setOrigin(0, 0).setScale(.3));
+        this.collectableItems.push(this.add.sprite(230, 545, 'airh').setOrigin(0, 0).setScale(.3));
         // Make each collectable item draggable and add properties
         for (let i = 0; i < this.collectableItems.length; ++i){
           this.collectableItems[i].setData('desc', this.itemDescriptions[i]);
@@ -191,13 +216,46 @@ export default class MyGame extends Phaser.Scene {
         //Special settings for soul
         this.collectableItems[1].setInteractive(false);
         this.physics.world.disable(this.collectableItems[1]);
+
+        //Special settings for onepc
+        this.collectableItems[4].setInteractive(false);
+        this.collectableItems[4].setVisible(false);
+        this.physics.world.disable(this.collectableItems[4]);
+
+        this.collectableItems[2].setDepth(6);
+
+     //WORLD BOUNDS//   
+     this.invisibleRect = this.add.rectangle(200, 0, 490, 640, 0x000000);
+     this.invisibleRect.setAlpha(0); // Set alpha to 0 to make it invisible
+     
+     // Enable physics on the rectangle
+     this.physics.add.existing(this.invisibleRect,true);
+     
+
+     this.smallRect = this.add.rectangle(643, 0, 300, 640, 0x000000);
+     this.smallRect.setAlpha(0); // Set alpha to 0 to make it invisible
+     
+     // Enable physics on the rectangle
+     this.physics.add.existing(this.smallRect,true);
+     // Set the collision properties of the rectangle
+
+
     //--------------------------------------CHARACTERS--------------------------------------//
 
+    
+
     //ALEXA
-    this.alexaSprite = this.physics.add.sprite(600, 500, 'front_idle').setScale(.4).setDepth(6).setOrigin(.5, .5);
+    this.alexaSprite = this.physics.add.sprite(500, 500, 'front_idle').setScale(.4).setDepth(6).setOrigin(.5, .5);
     this.alexaSprite.body.allowGravity = false;
     // Set collisions 
-    
+    this.physics.world.enable([this.bedSprite, this.alexaSprite]);
+    this.physics.add.collider(this.bedSprite, this.alexaSprite);
+
+    this.physics.world.enable([this.invisibleRect, this.alexaSprite]);
+    this.physics.add.collider(this.invisibleRect, this.alexaSprite);
+
+    this.physics.world.enable([this.smallRect, this.alexaSprite]);
+    this.physics.add.collider(this.smallRect, this.alexaSprite);
    
     this.movableObjects.forEach(item => {
       this.physics.world.enable([item, this.alexaSprite]);
@@ -266,6 +324,7 @@ export default class MyGame extends Phaser.Scene {
   this.cursor = this.input.keyboard.createCursorKeys();
 
     //--------------------------------------GAME LOGIC--------------------------------------//
+    
 
     this.alexaSprite.body.setCollideWorldBounds(true);
 
@@ -277,17 +336,24 @@ export default class MyGame extends Phaser.Scene {
 
     let lindor = 0;
     let soul = 0;
+    let paddle = 0;
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
       gameObject.y = dragY;
       if(gameObject.texture.key === 'pillow' && lindor == 0){
         this.physics.world.enable(this.collectableItems[5]);
-        times = 1;
+        lindor = 1;
       } 
 
       if(gameObject.texture.key === 'rug' && soul == 0){
         this.physics.world.enable(this.collectableItems[1]);
-        times = 1;
+        soul = 1;
+      }
+
+      if(gameObject.texture.key === 'paddle' && soul == 0){
+        this.physics.world.enable(this.collectableItems[4]);
+        this.collectableItems[4].setVisible(true);
+        paddle = 1;
       }
     });
 
@@ -311,7 +377,7 @@ export default class MyGame extends Phaser.Scene {
     this.bedSprite.setInteractive();
     this.bedSprite.on('pointerdown', this.handleBedClick, this);
 
-    this.dialogueText.setText('Can you help me collect the \nitems before my boyfriend \nwakes up?'); 
+    this.dialogueText.setText('Can you help me collect the \nitems for Valentine\'s day before my boyfriend \nwakes up?\n*HINT* You can drag furnature to find hidden gifts'); 
 
     
   }
@@ -392,11 +458,22 @@ export default class MyGame extends Phaser.Scene {
     // Make the item disappear
     item.destroy();
 
+    
     // Play the ping sound
     this.ping.play();
+
+    this.collectedItemsCount++;
+
+    // Check if all items are collected
+    if (this.collectedItemsCount === this.totalItemsCount) {
+      this.endNow(); // Trigger game end
+    }
   }
 
   endNow(){
+    this.time.delayedCall(5000, () => {
+      this.scene.start("MyEndKey");
+  }, [], this);
 
   }
 
