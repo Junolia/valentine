@@ -25,6 +25,14 @@ export default class MyGame extends Phaser.Scene {
     this.load.image("desk", "/assets/desk.png");
     // Trash
     this.load.image("trash", "/assets/trash.png");
+    // Paddle
+    this.load.image("paddle", "/assets/paddle.png");
+    // Rug
+    this.load.image("rug", "/assets/rug.png");
+    // Chair
+    this.load.image("chair", "/assets/chair.png");
+    // Pillow
+    this.load.image("pillow", "/assets/pillow.png");
     // Basket image
     this.load.image("basket", "/assets/basket.png");
     // Items
@@ -32,7 +40,7 @@ export default class MyGame extends Phaser.Scene {
     this.load.image("soul", "/assets/souleater.png");
     this.load.image("skinny", "/assets/skinnypop.png");
     this.load.image("kombucha", "/assets/kombucha.png");
-    this.load.image("onepc", "/assets/onePeice.png");
+    this.load.image("onepc", "/assets/onePiece.png");
     this.load.image("lindor", "/assets/lindor.png");
     this.load.image("airh", "/assets/airhead.png");
 
@@ -64,8 +72,8 @@ export default class MyGame extends Phaser.Scene {
     });
 
     this.load.spritesheet('side_walk', '/assets/side_walk.png', {
-      frameWidth: 116, 
-      frameHeight: 252,
+      frameWidth: 235, 
+      frameHeight: 512,
     });
 
 
@@ -85,7 +93,7 @@ export default class MyGame extends Phaser.Scene {
     // Room
     this.add.image(-10, -100, "bg").setOrigin(0, 0).setScale(.6);
     // Bed
-    this.bedSprite = this.add.sprite(50, sizes.height - 253, 'bed').setOrigin(0, 0).setScale(.5);
+    this.bedSprite = this.add.sprite(50, sizes.height - 270, 'bed').setOrigin(0, 0).setScale(.5).setDepth(5);
     this.bedSprite.anims.create({
       key: 'b_playIdle',
       frames: this.anims.generateFrameNumbers('bed', { start: 0, end: 2 }),
@@ -95,6 +103,41 @@ export default class MyGame extends Phaser.Scene {
 
     this.bedSprite.play('b_playIdle');
 
+    //**SPECIAL CASES**//
+
+    // Rug
+    this.rug = this.physics.add.image(255, 350, 'rug').setOrigin(0, 0).setDepth(4); 
+    this.rug.body.allowGravity = false;
+    this.rug.setInteractive();
+    this.input.setDraggable(this.rug);
+
+    // Pillow
+    this.pillow = this.physics.add.image(80, 340, 'pillow').setOrigin(0, 0).setDepth(3); 
+    this.pillow.body.allowGravity = false;
+    this.pillow.setInteractive();
+    this.input.setDraggable(this.pillow);
+
+    // Chair
+    this.add.image(25, 310, 'chair').setOrigin(0,0);
+
+    //**DRAGGABLE**/
+
+    this.movableObjects = [];
+
+    this.movableObjects.push(this.physics.add.image(450, 240, 'trash').setOrigin(0, 0).setScale(.4));
+    this.movableObjects.push(this.physics.add.image(220, 130, 'paddle').setOrigin(0, 0).setScale(.6));
+
+    this.movableObjects.forEach(item => {
+      item.setImmovable(true); // Prevents item from being moved by collisions
+      item.body.setSize(item.width, item.height); // Set collider size
+      item.body.allowGravity = false;
+      item.setDepth(1);
+
+      item.setInteractive();
+      this.input.setDraggable(item);
+      item.body.setCollideWorldBounds(true);
+
+  });
    
     // Desk 
     this.desk = this.physics.add.image(200, 100, "desk").setOrigin(0, 0).setScale(.7);
@@ -102,11 +145,6 @@ export default class MyGame extends Phaser.Scene {
     this.desk.body.setSize(this.desk.width, this.desk.height); // Set collider size
     this.desk.body.allowGravity = false;
 
-    //Trash bin
-    this.trashcan = this.physics.add.image(360, 200, 'trash').setOrigin(0, 0).setScale(.4);
-    this.trashcan.setImmovable(true); // Prevents trashcan from being moved by collisions
-    this.trashcan.body.setSize(this.trashcan.width, this.trashcan.height); // Set collider size
-    this.trashcan.body.allowGravity = false;
     //--------------------------------------BASKET--------------------------------------//
     const basket = this.add.image(sizes.width - 150, 500, "basket").setInteractive().setScale(.4);
     this.input.setDraggable(basket);
@@ -129,69 +167,51 @@ export default class MyGame extends Phaser.Scene {
 
         // Add each collectable item to the array and set them up individually
         this.collectableItems.push(this.add.sprite(300, sizes.height - 350, 'sour').setOrigin(0, 0).setScale(.3));
-        this.collectableItems.push(this.add.sprite(200, sizes.height - 350, 'soul').setOrigin(0, 0).setScale(.5));
-        this.collectableItems.push(this.add.sprite(400, sizes.height - 350, 'skinny').setOrigin(0, 0).setScale(.4))
-        this.collectableItems.push(this.add.sprite(250, sizes.height - 350, 'kombucha').setOrigin(0, 0).setScale(.4))
-        this.collectableItems.push(this.add.sprite(500 , sizes.height - 253, 'onepc').setOrigin(0, 0).setScale(.3))
-        this.collectableItems.push(this.add.sprite(400, sizes.height - 253, 'lindor').setOrigin(0, 0).setScale(.4))
-        this.collectableItems.push(this.add.sprite(500, sizes.height - 350, 'airh').setOrigin(0, 0).setScale(.3))
+        this.collectableItems.push(this.add.sprite(400, 350, 'soul').setOrigin(0, 0).setScale(.5));
+        this.collectableItems.push(this.add.sprite(400, sizes.height - 350, 'skinny').setOrigin(0, 0).setScale(.4));
+        this.collectableItems.push(this.add.sprite(455, 240, 'kombucha').setOrigin(0, 0).setScale(.3));
+        this.collectableItems.push(this.add.sprite(225,180, 'onepc').setOrigin(0, 0).setScale(.3));
+        this.collectableItems.push(this.add.sprite(95, 355, 'lindor').setOrigin(0, 0).setScale(.4));
+        this.collectableItems.push(this.add.sprite(500, sizes.height - 350, 'airh').setOrigin(0, 0).setScale(.3));
         // Make each collectable item draggable and add properties
-
         for (let i = 0; i < this.collectableItems.length; ++i){
           this.collectableItems[i].setData('desc', this.itemDescriptions[i]);
         }
         this.collectableItems.forEach(item => {
             item.setInteractive();
-            item.setScale(.3);
-            this.input.setDraggable(item);
             this.physics.world.enable(item);
             item.body.allowGravity = false;
             item.body.setCollideWorldBounds(true);
         });
-    // Sour patch
-      /**
-       * A candy that my boyfriend used to eat all the time. He does have good taste.
-       */
-    // Soul eater
-      /**
-       * He's a huge terraria ner--I mean fan, I hope this little critter won't scare his roomate!
-       */
-    // Skinny Pop
-      /**
-       * Also known as "dinner". Maybe I shouldn't be feeding into his bad eating habits...
-       */
-    // Kombucha
-      /**
-       * Oh this? Definately not going in the basket.
-       */
-    // One Peice
-      /**
-       * You found the one peice?! Oh...it's just stickers. It'll have to do. 
-       */
 
-    // Lindor Chocolates
-      /**
-       * Reminiscent of our first picnic at my house, something sweet for someone sweet. 
-       */
-      // Air heads
-      /**
-       * This would do nicely!
-       */
+        // Special settings for lindor
+        this.collectableItems[5].setInteractive(false);
+        this.physics.world.disable(this.collectableItems[5]);
 
-    //*** COLLECTABLES ***/
-
+        //Special settings for soul
+        this.collectableItems[1].setInteractive(false);
+        this.physics.world.disable(this.collectableItems[1]);
     //--------------------------------------CHARACTERS--------------------------------------//
 
     //ALEXA
-    this.alexaSprite = this.physics.add.sprite(50, sizes.height - 400, 'front_idle').setOrigin(0.5, 0.5).setScale(.4);
+    this.alexaSprite = this.physics.add.sprite(600, 500, 'front_idle').setScale(.4).setDepth(6).setOrigin(.5, .5);
     this.alexaSprite.body.allowGravity = false;
+    // Set collisions 
+    
+   
+    this.movableObjects.forEach(item => {
+      this.physics.world.enable([item, this.alexaSprite]);
+      this.physics.add.collider(item, this.alexaSprite);
+    });
 
+    this.alexaSprite.setSize(100, 20);
+        this.alexaSprite.setOffset(this.alexaSprite.width/2.7, this.alexaSprite.height - 50);
     // Front idle
     this.alexaSprite.anims.create({
       key: 'a_front_idle',
       frames: this.anims.generateFrameNumbers('front_idle', { start: 0, end: 4 }),
       frameRate: 4,
-      repeat: -1
+      repeat: -1,
     });
 
     // Side Idle
@@ -199,7 +219,7 @@ export default class MyGame extends Phaser.Scene {
       key: 'a_side_idle',
       frames: this.anims.generateFrameNumbers('side_idle', { start: 0, end: 4 }),
       frameRate: 5,
-      repeat: -1
+      repeat: -1,
     });
 
     // Back Idle
@@ -207,7 +227,7 @@ export default class MyGame extends Phaser.Scene {
       key: 'a_back_idle',
       frames: this.anims.generateFrameNumbers('back_idle', { start: 0, end: 4 }),
       frameRate: 4,
-      repeat: -1
+      repeat: -1,
     });
 
     // Front Walk
@@ -215,30 +235,32 @@ export default class MyGame extends Phaser.Scene {
       key: 'a_front_walk',
       frames: this.anims.generateFrameNumbers('front_walk', { start: 0, end: 3 }),
       frameRate: 5,
-      repeat: -1
+      repeat: -1,
     });
-
 
     // Side Walk
     this.alexaSprite.anims.create({
       key: 'a_side_walk',
       frames: this.anims.generateFrameNumbers('side_walk', { start: 0, end: 3 }),
       frameRate: 5,
-      repeat: -1
+      repeat: -1,
     });
+
     // Back Walk 
     this.alexaSprite.anims.create({
       key: 'a_back_walk',
       frames: this.anims.generateFrameNumbers('back_walk', { start: 0, end: 3 }),
       frameRate: 5,
-      repeat: -1
+      repeat: -1,
     });
+
+    //this.alexaSprite.setSizeToFrame('front_walk');
+
     this.alexaSprite.play('a_front_idle');
 
   //--------------------------------------MOVEMENT--------------------------------------//
   
   // Enable physics for Alexa
-  this.physics.world.enable(this.alexaSprite);
 
   // Set up arrow key input
   this.cursor = this.input.keyboard.createCursorKeys();
@@ -253,23 +275,28 @@ export default class MyGame extends Phaser.Scene {
       gameObject.setTint(0xFFB6C1);
     });
 
-    this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+    let lindor = 0;
+    let soul = 0;
+    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
       gameObject.y = dragY;
+      if(gameObject.texture.key === 'pillow' && lindor == 0){
+        this.physics.world.enable(this.collectableItems[5]);
+        times = 1;
+      } 
+
+      if(gameObject.texture.key === 'rug' && soul == 0){
+        this.physics.world.enable(this.collectableItems[1]);
+        times = 1;
+      }
     });
 
     this.input.on('dragend', function (pointer, gameObject) {
       gameObject.clearTint();
-
-      // Implement logic to check if the item is dropped in the basket area
-      if (Phaser.Geom.Intersects.RectangleToRectangle(gameObject.getBounds(), basket.getBounds())) {
-        // Item is dropped in the basket
-        // You can add scoring logic or any other functionality here
-        gameObject.destroy();
-      }
     });
 
     this.ping = this.sound.add('ping', { volume: 0.1, loop: false });
+
 
     //DIALOGUE
     this.dialogueText = this.add.text(sizes.width / 2, 50, '', {
@@ -294,63 +321,56 @@ export default class MyGame extends Phaser.Scene {
 
     // Update Alexa's movement in the update loop
     const speed = 350;
-    let scale = 0.4; 
-
+    
     if (this.cursor.left.isDown) {
+      this.alexaSprite.setOffset(100, this.alexaSprite.height - 50);
       this.alexaSprite.setVelocityX(-speed);
       this.alexaSprite.flipX = true;
-      // Adjust origin and collision box when flipping horizontally
-      this.alexaSprite.setOrigin(0.5, 0.5);
 
-      scale = .8;
       this.alexaSprite.play('a_side_walk', true);
   } else if (this.cursor.right.isDown) {
+    this.alexaSprite.setOffset(100 , this.alexaSprite.height - 50);
       this.alexaSprite.setVelocityX(speed);
       this.alexaSprite.flipX = false;
-      this.alexaSprite.setOrigin(0.5, 0.5);
-      scale = .8;
       this.alexaSprite.play('a_side_walk', true);
   } else {
       // Restore original origin and collision box
-      this.alexaSprite.setOrigin(0.5, 0.5);
-      scale = .4;
+      this.alexaSprite.setOffset(this.alexaSprite.width/2.7, this.alexaSprite.height - 50);
       this.alexaSprite.setVelocityX(0);
   }
 
     if (this.cursor.up.isDown) {
+      this.alexaSprite.setOffset(this.alexaSprite.width/2.7, this.alexaSprite.height - 50);
       this.alexaSprite.setVelocityY(-speed);
       this.alexaSprite.setScale(.4);
-      scale = .4;
       this.alexaSprite.play('a_back_walk', true);
     } else if (this.cursor.down.isDown) {
+      this.alexaSprite.setOffset(this.alexaSprite.width/2.7, this.alexaSprite.height - 50);
       this.alexaSprite.setVelocityY(speed)
       this.alexaSprite.setScale(.4);
-      scale = .4;
       this.alexaSprite.play('a_front_walk', true);
     } else {
       this.alexaSprite.setVelocityY(0);
 
        if (!this.cursor.left.isDown &&this.prevCursorLeft) {
         this.alexaSprite.flipX = true;
-        scale = .4;
+        this.alexaSprite.setOffset(20, this.alexaSprite.height - 50);
         this.alexaSprite.play('a_side_idle');
        } else if (!this.cursor.right.isDown &&this.prevCursorRight) {
+        this.alexaSprite.setOffset(20, this.alexaSprite.height - 50);
         this.alexaSprite.flipX = false;
-        scale = .4;
         this.alexaSprite.play('a_side_idle');
        } else if (!this.cursor.down.isDown &&this.prevCursorDown) {
+        this.alexaSprite.setOffset(this.alexaSprite.width/2.7, this.alexaSprite.height - 50);
         this.alexaSprite.flipX = false;
-        scale = .4;
         this.alexaSprite.play('a_front_idle');
        } else if (!this.cursor.up.isDown &&this.prevCursorUp) {
+        this.alexaSprite.setOffset(this.alexaSprite.width/2.7, this.alexaSprite.height - 50);
         this.alexaSprite.flipX = false;
-        scale = .4;
         this.alexaSprite.play('a_back_idle');
        }
-    }
 
-    this.alexaSprite.setScale(scale);
-    this.alexaSprite.body.setSize(this.alexaSprite.width, this.alexaSprite.height, false); 
+    }
 
     this.prevCursorLeft = this.cursor.left.isDown;
     this.prevCursorRight = this.cursor.right.isDown;
@@ -359,13 +379,13 @@ export default class MyGame extends Phaser.Scene {
     //dialogue
     this.physics.world.overlap(this.alexaSprite, this.collectableItems, this.handleItemCollision, null, this);
 
-  
-
   }
   handleBedClick(pointer, localX, localY, event) {
         // Change the dialogue text when alexaSprite is clicked
         this.dialogueText.setText('Shh, he\'s sleeping!'); // Change this to your desired text
       }
+
+
   handleItemCollision(alexaSprite, item) {
     // Display dialogue
     this.dialogueText.setText(item.getData('desc')); // Customize the dialogue text
