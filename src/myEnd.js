@@ -12,7 +12,7 @@ export default class MyEnd extends Phaser.Scene {
 
     update(){
         if(this.spaceKey.isDown){
-            this.scene.start("MyMenuKey");
+            this.scene.start("MyGameKey");
         }
     }
 }
